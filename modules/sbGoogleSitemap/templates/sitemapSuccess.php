@@ -12,7 +12,7 @@
   <url>  
     <loc><?php echo $page->uri; ?></loc>  
 		<changefreq>daily</changefreq>
-		<priority><?php echo $page->priority; ?></priority> 
+		<priority><?php echo number_format($page->priority, 2); ?></priority> 
     <lastmod><?php echo $page->updated; ?></lastmod> 
   </url>  
   <?php endforeach ?>  
