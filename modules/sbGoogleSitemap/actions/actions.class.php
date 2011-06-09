@@ -34,7 +34,28 @@ class sbGoogleSitemapActions extends BaseaActions
 		$root = aPageTable::retrieveBySlug('/');
 		$this->createSitemapPagesFromPages($root->getTreeInfo());
 		
+		// add blog pages
+		$this->createSitemapPagesFromBlog($request);
+		
 		$this->outputPages = $this->sitemapPages;
+	}
+	
+	/**
+	 * 
+	 */
+	protected function createSitemapPagesFromBlog($request)
+	{
+		// if not required return
+		if($this->settings['blog_pages'] != 'true'){ return; }
+		
+		// get all blog pages
+		$this->blogPosts = aBlogPostTable::getInstance()->findByStatus('published');
+		aBlogItemTable::populatePages($this->blogPosts);
+		
+		foreach($this->blogPosts as $post)
+		{
+			$this->createPage($post->getEngineSlug() . '/' . $post->getSlug(), FALSE, array('priority_setting_name' => 'blog_page_priority', 'lastmod' => strtotime($post->getUpdatedAt())));
+		}
 	}
 	
 	/**
@@ -97,7 +118,21 @@ class sbGoogleSitemapActions extends BaseaActions
 		}
 		
 		// @TODO Insert datetime for modified
-		$page->updated = date('c');
+		if(isset($params['lastmod']) and is_numeric($params['lastmod']))
+		{
+			try 
+			{
+				$page->updated = date('c', $params['lastmod']);
+			}
+			catch (Exception $e)
+			{
+				$page->updated = date('c');
+			}
+		}
+		else
+		{
+			$page->updated = date('c');
+		}
 
 		$this->sitemapPages[] = $page;
 	}
