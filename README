@@ -7,7 +7,9 @@ Built for the Symfony PHP framework and Apostrophe CMS system.
 @TODO sitemap for the events engine
 @TODO news sitemaps for Google News
 @TODO Other formats of sitemap
-
+@TODO Get last modified from pages
+@TODO Ability to specify priorities for each page
+@TODO Ability to specify priorities for each blog post
 
 ##################################################
 
