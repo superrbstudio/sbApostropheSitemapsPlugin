@@ -54,7 +54,7 @@ class sbGoogleSitemapActions extends BaseaActions
 		
 		foreach($this->blogPosts as $post)
 		{
-			$this->createPage($post->getEngineSlug() . '/' . $post->getSlug(), FALSE, array('priority_setting_name' => 'blog_page_priority', 'lastmod' => strtotime($post->getUpdatedAt())));
+			$this->createPage($post->getEngineSlug() . '/' . $post->getYear() . '/' . $post->getMonth() . '/' . $post->yetDay() . '/' . $post->getSlug(), FALSE, array('priority_setting_name' => 'blog_page_priority', 'lastmod' => strtotime($post->getUpdatedAt())));
 		}
 	}
 	
