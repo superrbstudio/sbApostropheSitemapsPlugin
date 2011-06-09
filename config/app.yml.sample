@@ -1,0 +1,7 @@
+all:
+  a:
+    sbGoogleSitemap:
+      homepage_priority: 1.0       # This is the priority assigned to the homepage
+      priority: 0.9                # This is the priority assigned to all pages
+      blog_pages: true             # Set to false if you are not using the blog engine
+      blog_page_priority: 0.6      # This is the priority assigned to blog posts
