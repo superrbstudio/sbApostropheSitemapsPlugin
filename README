@@ -4,6 +4,8 @@ Plugin generates xml sitemaps for the Apostrophe CMS system
 
 Built for the Symfony PHP framework and Apostrophe CMS system.
 
+Instructions: http://www.superrb.com/blog/2011/06/09/google-sitemaps-plugin-for-apostrophe-content-management-system
+
 @TODO sitemap for the events engine
 @TODO news sitemaps for Google News
 @TODO Other formats of sitemap
