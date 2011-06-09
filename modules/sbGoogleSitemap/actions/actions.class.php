@@ -2,9 +2,9 @@
 /**
  * 
  * a actions.
- * @package    apostrophe
- * @subpackage a
- * @author     Your name here
+ * @package    sbApostropheSitemapsPlugin
+ * @subpackage sbGoogleSitemap
+ * @author     Giles Smith <tech@superrb.com>
  * @version    SVN: $Id: actions.class.php 12479 2008-10-31 10:54:40Z fabien $
  */
 class sbGoogleSitemapActions extends BaseaActions
@@ -41,16 +41,17 @@ class sbGoogleSitemapActions extends BaseaActions
 	}
 	
 	/**
+	 * Generate the urls for the blog pages
 	 * 
+	 * @TODO make sure url matches route
 	 */
-	protected function createSitemapPagesFromBlog($request)
+	protected function createSitemapPagesFromBlog()
 	{
 		// if not required return
 		if($this->settings['blog_pages'] != 'true'){ return; }
 		
 		// get all blog pages
 		$this->blogPosts = aBlogPostTable::getInstance()->findByStatus('published');
-		aBlogItemTable::populatePages($this->blogPosts);
 		
 		foreach($this->blogPosts as $post)
 		{
