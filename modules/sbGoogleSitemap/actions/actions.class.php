@@ -96,7 +96,9 @@ class sbGoogleSitemapActions extends BaseaActions
 				if($p['view_guest'] == 1)
 				{
 					if($p['view_is_secure'] == 1) { $secure = TRUE; } else { $secure = FALSE; }
-					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_page?slug=' . substr_replace($p['slug'], '', 0, 1)), $secure);
+					//$this->createPage($p['slug'], $secure, array('priority_setting_name' => 'priority'));
+					
+					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, $p['slug'], $secure);
 				}
 			}
 		}
