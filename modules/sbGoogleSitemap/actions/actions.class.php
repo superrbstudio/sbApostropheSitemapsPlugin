@@ -21,6 +21,7 @@ class sbGoogleSitemapActions extends BaseaActions
 	 */
 	public function executeSitemap(sfWebRequest $request)
 	{	
+		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Url'));
 		$this->settings = sfConfig::get('app_a_sbGoogleSitemap');
 		$this->getResponse()->setContentType('text/xml'); 
 		
@@ -37,25 +38,43 @@ class sbGoogleSitemapActions extends BaseaActions
 		// add blog pages
 		$this->createSitemapPagesFromBlog($request);
 		
+		// add events pages
+		
+		// add any custom plugin pages
+		$this->createSitemapPagesFromPlugins($request);
+		
 		$this->outputPages = $this->sitemapPages;
+	}
+	
+	protected function createSitemapPagesFromPlugins($request)
+	{
+		if(isset($this->settings['plugin_models']) and is_array($this->settings['plugin_models']))
+		{
+			foreach($this->settings['plugin_models'] as $model => $method)
+			{
+				$this->sitemapPages = array_merge($this->sitemapPages, call_user_func($model . 'Table::' . $method));
+			}
+		}
 	}
 	
 	/**
 	 * Generate the urls for the blog pages
-	 * 
-	 * @TODO make sure url matches route
 	 */
 	protected function createSitemapPagesFromBlog()
 	{
 		// if not required return
-		if($this->settings['blog_pages'] != 'true'){ return; }
+		if(!isset($this->settings['blog_pages']) or $this->settings['blog_pages'] != 'true'){ return; }
 		
 		// get all blog pages
 		$this->blogPosts = aBlogPostTable::getInstance()->findByStatus('published');
 		
+		// get blog page priority
+		if(isset($this->settings['blog_page_priority'])){ $pr = $this->settings['blog_page_priority']; } else { $pr = null; }
+		if(isset($this->settings['blog_page_change_freq'])){ $ch = $this->settings['blog_page_change_freq']; } else { $ch = null; }
+		
 		foreach($this->blogPosts as $post)
 		{
-			$this->createPage($post->getEngineSlug() . '/' . $post->getYear() . '/' . $post->getMonth() . '/' . $post->getDay() . '/' . $post->getSlug(), FALSE, array('priority_setting_name' => 'blog_page_priority', 'lastmod' => strtotime($post->getUpdatedAt())));
+			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_blog_post?year=' . $post->getYear() . '&month=' . $post->getMonth() . '&day=' . $post->getDay() . '&slug=' . $post->getSlug()), FALSE, $ch, $pr, strtotime($post->getUpdatedAt()));
 		}
 	}
 	
@@ -77,7 +96,7 @@ class sbGoogleSitemapActions extends BaseaActions
 				if($p['view_guest'] == 1)
 				{
 					if($p['view_is_secure'] == 1) { $secure = TRUE; } else { $secure = FALSE; }
-					$this->createPage($p['slug'], $secure, array('priority_setting_name' => 'priority'));
+					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_page?slug=' . substr_replace($p['slug'], '', 0, 1)), $secure);
 				}
 			}
 		}
@@ -88,7 +107,7 @@ class sbGoogleSitemapActions extends BaseaActions
 	 */
 	protected function createHomepage()
 	{
-		$this->createPage('/', FALSE, array('priority_setting_name' => 'homepage_priority'));
+		$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, '/', FALSE, 'daily', 1, time());
 	}
 	
 	/**
@@ -100,41 +119,10 @@ class sbGoogleSitemapActions extends BaseaActions
 	 */
 	protected function createPage($slug, $isSecure = FALSE, $params = array())
 	{
-		$page = new stdClass();
+		//$page = new stdClass();
 					
-		// is secure
-		if($isSecure){ $page->uri = 'https://'; } else { $page->uri = 'http://'; }
 		
-		// construct uri
-		$page->uri .= $this->domain . $slug;
-		
-		// set the priority if it is available
-		if(is_numeric($this->settings[$params['priority_setting_name']]) and $this->settings[$params['priority_setting_name']] >= 0 and $this->settings[$params['priority_setting_name']] <= 1)
-		{
-			$page->priority = $this->settings[$params['priority_setting_name']];
-		}
-		else
-		{
-			$page->priority = $this->defaultPriority;
-		}
-		
-		// @TODO Insert datetime for modified
-		if(isset($params['lastmod']) and is_numeric($params['lastmod']))
-		{
-			try 
-			{
-				$page->updated = date('c', $params['lastmod']);
-			}
-			catch (Exception $e)
-			{
-				$page->updated = date('c');
-			}
-		}
-		else
-		{
-			$page->updated = date('c');
-		}
 
-		$this->sitemapPages[] = $page;
+		//$this->sitemapPages[] = $page;
 	}
 }
