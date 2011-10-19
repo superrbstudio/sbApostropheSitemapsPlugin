@@ -13,6 +13,7 @@ class sbGoogleSitemapActions extends BaseaActions
 	protected $defaultPriority = 0.8;
 	protected $settings = null;
 	protected $domain = null;
+	protected $request = null;
 
 	/**
 	 * Execute the sitemap action
@@ -24,6 +25,7 @@ class sbGoogleSitemapActions extends BaseaActions
 		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Url'));
 		$this->settings = sfConfig::get('app_a_sbGoogleSitemap');
 		$this->getResponse()->setContentType('text/xml');
+		$this->request = $request;
 
 		// set the domain
 		$this->domain = $request->getHost();
@@ -74,7 +76,7 @@ class sbGoogleSitemapActions extends BaseaActions
 
 		foreach($this->blogPosts as $post)
 		{
-			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_blog_post?year=' . $post->getYear() . '&month=' . $post->getMonth() . '&day=' . $post->getDay() . '&slug=' . $post->getSlug()), $this->isSecure(), $ch, $pr, strtotime($post->getUpdatedAt()));
+			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_blog_post?year=' . $post->getYear() . '&month=' . $post->getMonth() . '&day=' . $post->getDay() . '&slug=' . $post->getSlug()), $this->request->isSecure(), $ch, $pr, strtotime($post->getUpdatedAt()));
 		}
 	}
 
@@ -95,7 +97,7 @@ class sbGoogleSitemapActions extends BaseaActions
 			{
 				if($p['view_guest'] == 1)
 				{
-					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, $p['slug'], $this->isSecure());
+					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, $p['slug'], $this->request->isSecure());
 				}
 			}
 		}
@@ -106,7 +108,7 @@ class sbGoogleSitemapActions extends BaseaActions
 	 */
 	protected function createHomepage()
 	{
-		$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, '/', $this->isSecure(), 'daily', 1, time());
+		$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, '/', $this->request->isSecure(), 'daily', 1, time());
 	}
 
 	/**
