@@ -2,6 +2,8 @@ sbApostropheSitemapsPlugin
 
 Plugin generates xml sitemaps for the Apostrophe CMS system
 
+*** Now supports pages that are children of unpublished pages
+
 Built for the Symfony PHP framework and Apostrophe CMS system.
 
 Instructions: http://www.superrb.com/blog/2011/06/09/google-sitemaps-plugin-for-apostrophe-content-management-system
