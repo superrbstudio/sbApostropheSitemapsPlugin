@@ -37,8 +37,7 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 		$this->createHomepage();
 
 		// add all apostrophe pages
-		$root = aPageTable::retrieveBySlug('/');
-		$this->createSitemapPagesFromPages($root->getTreeInfo());
+		$this->createSitemapPagesFromApostrophe();
 
 		// add blog pages
 		$this->createSitemapPagesFromBlog($request);
@@ -49,6 +48,21 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 		$this->createSitemapPagesFromPlugins($request);
 
 		$this->outputPages = $this->sitemapPages;
+	}
+	
+	protected function createSitemapPagesFromApostrophe()
+	{
+		// add all pages in the main root
+		$root = aPageTable::retrieveBySlug('/');
+		$this->createSitemapPagesFromPages($root->getTreeInfo());
+		
+		// find unpublished pages and add their children if they exist
+		$pages = Doctrine_Core::getTable('aPage')->findByArchived(1);
+		
+		foreach($pages as $page)
+		{
+			$this->createSitemapPagesFromPages($page->getTreeInfo());
+		}
 	}
 
 	protected function createSitemapPagesFromPlugins($request)
@@ -100,7 +114,7 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 			{
 				if($p['view_guest'] == 1)
 				{
-					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, $p['slug'], $this->request->isSecure());
+					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for($p['slug']), $this->request->isSecure());
 				}
 			}
 		}
@@ -112,22 +126,6 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 	protected function createHomepage()
 	{
 		$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, '/', $this->request->isSecure(), 'daily', 1, time());
-	}
-
-	/**
-	 * Create pages for the pages array
-	 *
-	 * @param string $slug
-	 * @param boolean $isSecure
-	 * @param array $params
-	 */
-	protected function createPage($slug, $isSecure = FALSE, $params = array())
-	{
-		//$page = new stdClass();
-
-
-
-		//$this->sitemapPages[] = $page;
 	}
 }
 
