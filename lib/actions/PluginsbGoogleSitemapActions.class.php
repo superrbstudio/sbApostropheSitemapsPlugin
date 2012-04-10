@@ -43,6 +43,7 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 		$this->createSitemapPagesFromBlog($request);
 
 		// add events pages
+    $this->createSitemapPagesFromEvents($request);
 
 		// add any custom plugin pages
 		$this->createSitemapPagesFromPlugins($request);
@@ -61,7 +62,13 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 		
 		foreach($pages as $page)
 		{
-			$this->createSitemapPagesFromPages($page->getTreeInfo());
+      try
+      {
+        $this->createSitemapPagesFromPages($page->getTreeInfo());
+      } catch (Exception $e)
+      {
+        // something went wrong building the page tree for this page
+      }
 		}
 	}
 
@@ -93,7 +100,28 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 
 		foreach($this->blogPosts as $post)
 		{
-			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('@a_blog_post?year=' . $post->getYear() . '&month=' . $post->getMonth() . '&day=' . $post->getDay() . '&slug=' . $post->getSlug()), $this->request->isSecure(), $ch, $pr, strtotime($post->getUpdatedAt()));
+			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('a_blog_post', $post), $this->request->isSecure(), $ch, $pr, strtotime($post->getUpdatedAt()));
+		}
+	}
+  
+  /**
+	 * Generate the urls for the blog pages
+	 */
+	protected function createSitemapPagesFromEvents()
+	{
+		// if not required return
+		if(!isset($this->settings['events_pages']) or $this->settings['events_pages'] != 'true'){ return; }
+
+		// get all blog pages
+		$this->eventPosts = aEventTable::getInstance()->findByStatus('published');
+
+		// get blog page priority
+		if(isset($this->settings['events_page_priority'])){ $pr = $this->settings['events_page_priority']; } else { $pr = null; }
+		if(isset($this->settings['events_page_change_freq'])){ $ch = $this->settings['events_page_change_freq']; } else { $ch = null; }
+
+		foreach($this->eventPosts as $event)
+		{
+			$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for('a_event_post', $event), $this->request->isSecure(), $ch, $pr, strtotime($event->getUpdatedAt()));
 		}
 	}
 
