@@ -25,9 +25,10 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 	 */
 	public function executeSitemap(sfWebRequest $request)
 	{
+    $this->getUser()->setFlash('aCacheInvalid', true);
 		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Url'));
 		$this->settings = sfConfig::get('app_a_sbGoogleSitemap');
-		$this->getResponse()->setContentType('text/xml');
+		$this->getResponse()->setContentType('application/xml');
 		$this->request = $request;
 
 		// set the domain
