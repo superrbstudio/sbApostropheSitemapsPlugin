@@ -135,16 +135,13 @@ abstract class PluginsbGoogleSitemapActions extends BaseaActions
 	{
 		foreach($array as $p)
 		{
+			if($p['view_guest'] == 1)
+			{
+				$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for($p['slug']), $this->request->isSecure());
+			}
 			if(isset($p['children']) and is_array($p['children']))
 			{
 				$this->createSitemapPagesFromPages($p['children']);
-			}
-			else
-			{
-				if($p['view_guest'] == 1)
-				{
-					$this->sitemapPages[] = new sbGoogleSitemapPage($this->domain, url_for($p['slug']), $this->request->isSecure());
-				}
 			}
 		}
 	}
